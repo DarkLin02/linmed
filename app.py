@@ -67,48 +67,67 @@ def ObtenerPartes(linea):
 # ### Paso 2: Obtener el dataframe usando el archivo txt y las funciones definidas
 ##################################################################################
 
+@st.cache_data
+def cargar_datos_chat(RutaChat):
+    """
+    Carga el archivo .txt, parsea las líneas en un DataFrame y realiza 
+    el pre-procesamiento inicial (fechas, nulos, filtro por fecha).
+    """
+    
+    # ------------------------------------------------------------------
+    # CÓDIGO COPIADO DE TU 'Paso 2: Obtener el dataframe...'
+    # ------------------------------------------------------------------
+    
+    # Lista para almacenar los datos (Fecha, Hora, Miembro, Mensaje) de cada línea del txt
+    DatosLista = []
+    # Importante: Aquí usas la RutaChat pasada como argumento
+    with open(RutaChat, encoding="utf-8") as fp: 
+        # ... (Tu lógica de lectura y parseo con ObtenerPartes y IniciaConFechaYHora)
+        fp.readline() # Eliminar primera fila relacionada al cifrado de extremo a extremo
+        Fecha, Hora, Miembro = None, None, None
+        while True:
+            linea = fp.readline()
+            if not linea:
+                break
+            linea = linea.strip()
+            # Asumiendo que ObtenerPartes y IniciaConFechaYHora están definidas ANTES
+            if IniciaConFechaYHora(linea): 
+                Fecha, Hora, Miembro, Mensaje = ObtenerPartes(linea) 
+                DatosLista.append([Fecha, Hora, Miembro, Mensaje])
+            else:
+                # Esto es crucial para mensajes de múltiples líneas. 
+                # Si no es un nuevo mensaje, adjúntalo al mensaje anterior.
+                if DatosLista:
+                    DatosLista[-1][-1] += " " + linea 
+
+
+    # Convertir la lista con los datos a dataframe
+    df = pd.DataFrame(DatosLista, columns=['Fecha', 'Hora', 'Miembro', 'Mensaje'])
+
+    # Cambiar la columna Fecha a formato datetime
+    df['Fecha'] = pd.to_datetime(df['Fecha'], format="%d/%m/%Y")
+
+    # Eliminar los posibles campos vacíos y resetear el índice
+    df = df.dropna().reset_index(drop=True)
+
+    # #### Filtrar el chat por fecha de acuerdo a lo requerido
+    start_date = '2024-09-01'
+    end_date = '2025-10-11'
+
+    df = df[(df['Fecha'] >= start_date) & (df['Fecha'] <= end_date)].copy()
+    
+    return df
+
 # Leer el archivo txt descargado del chat de WhatsApp
 RutaChat = 'Data/Chat de WhatsApp con Estela ✨.txt'
-
-# Lista para almacenar los datos (Fecha, Hora, Miembro, Mensaje) de cada línea del txt
-DatosLista = []
-with open(RutaChat, encoding="utf-8") as fp:
-    fp.readline() # Eliminar primera fila relacionada al cifrado de extremo a extremo
-    Fecha, Hora, Miembro = None, None, None
-    while True:
-        linea = fp.readline()
-        if not linea:
-            break
-        linea = linea.strip()
-        if IniciaConFechaYHora(linea): # Si cada línea del txt coincide con el patrón fecha y hora
-            Fecha, Hora, Miembro, Mensaje = ObtenerPartes(linea) # Obtener datos de cada línea del txt
-            DatosLista.append([Fecha, Hora, Miembro, Mensaje])
-
-# Convertir la lista con los datos a dataframe
-df = pd.DataFrame(DatosLista, columns=['Fecha', 'Hora', 'Miembro', 'Mensaje'])
-
-# Cambiar la columna Fecha a formato datetime
-df['Fecha'] = pd.to_datetime(df['Fecha'], format="%d/%m/%Y")
-
-# Eliminar los posibles campos vacíos del dataframe
-# y lo que no son mensajes como cambiar el asunto del grupo o agregar a alguien
-df = df.dropna()
-
-# Resetear el índice
-df.reset_index(drop=True, inplace=True)
-
-# #### Filtrar el chat por fecha de acuerdo a lo requerido
-start_date = '2024-09-01'
-end_date = '2025-10-11'
-
-df = df[(df['Fecha'] >= start_date) & (df['Fecha'] <= end_date)]
-
+df = cargar_datos_chat(RutaChat)
 
 ##################################################################
 # ### Paso 3: Estadísticas de mensajes, multimedia, emojis y links
 ##################################################################
 
 # #### Total de mensajes, multimedia, emojis y links enviados
+@st.cache_data
 def ObtenerEmojis(Mensaje):
     emoji_lista = []
     data = regex.findall(r'\X', Mensaje)  # Obtener lista de caracteres de cada mensaje
@@ -121,7 +140,7 @@ def ObtenerEmojis(Mensaje):
 total_mensajes = df.shape[0]
 
 # Obtener la cantidad de archivos multimedia enviados
-multimedia_mensajes = df[df['Mensaje'] == '<Media omitted>'].shape[0]
+multimedia_mensajes = df[df['Mensaje'] == '<Multimedia omitido>'].shape[0]
 
 # Obtener la cantidad de emojis enviados
 df['Emojis'] = df['Mensaje'].apply(ObtenerEmojis) # Se agrega columna 'Emojis'
