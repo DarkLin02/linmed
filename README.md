@@ -34,14 +34,13 @@ La app permite explorar estadísticas, palabras más frecuentes, emojis utilizad
 ## 📂 Estructura del Proyecto
 
 whatsapp-chat-analysis-app/
-│
 ├── app.py # Aplicación principal de Streamlit
 ├── main.ipynb
 ├── requirements.txt # Dependencias del proyecto
 ├── data/
-│ └── Chat de WhatsApp con Estela ✨.txt
+│   └── Chat de WhatsApp con Estela ✨.txt
 ├── Resources/
-│ └── heart.png
+│   └── heart.png
 └── README.md # Documentación del proyecto
 
 ---
@@ -63,4 +62,5 @@ y detrás de cada palabra, estás vos. 💌
 ---
 
 ✨ Hecho con amor, datos y un poco de código.
+
 © 2025 — Caín Sebastián Lin
