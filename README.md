@@ -33,6 +33,7 @@ La app permite explorar estadísticas, palabras más frecuentes, emojis utilizad
 
 ## 📂 Estructura del Proyecto
 
+```bash
 whatsapp-chat-analysis-app/
 ├── app.py # Aplicación principal de Streamlit
 ├── main.ipynb
@@ -42,7 +43,7 @@ whatsapp-chat-analysis-app/
 ├── Resources/
 │   └── heart.png
 └── README.md # Documentación del proyecto
-
+```
 ---
 
 ## 💖 Dedicado a Estela
